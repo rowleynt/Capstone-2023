@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Index </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body></br></br></br></br></br>
+        <div align="center">
+          <div align="center" class="border">
+             <div class="header">
+                <h1 class="word">Index</h1>
+                    <img src={{ user_image }} alt="image" height="240px" width="300px">
+             </div></br></br></br>
+                <h1 class="bottom">
+                    Agent ID: {{session.agentID}}</br>
+                    First Name: {{session.fname}}</br>
+                    Last Name: {{session.lname}}</br>
+                    Email: {{session.email}}</br>
+                    Phone: {{session.phone}}</br>
+                    </br>
+                    <a href="{{url_for('add_property')}}"> Add A Property</a>
+                    </br>
+                </h1></br></br></br>
+                {% for item in list %}
+                    <li><a href="{{ url_for('view_property', propertyID = item[0]) }}" class="btn">{{ item[6] }}</a></li>
+                {% endfor %}
+                <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+          </div>
+        </div>
+    </body>
+</html>
