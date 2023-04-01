@@ -9,6 +9,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
+# initial database stuff
 db = sqlite3.connect("boomtown.db")
 conn = db.cursor()
 conn.execute("CREATE TABLE IF NOT EXISTS Agent (agentID INTEGER PRIMARY KEY AUTOINCREMENT, agentFName TEXT, agentLName TEXT, email TEXT, password TEXT, phone TEXT)")
