@@ -50,7 +50,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-# TODO: when making folders, add 'AGENT' and 'PROPERTY' inside of agent folder
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     msg = ''
@@ -131,7 +130,6 @@ def update_profile():
         return redirect(url_for('login'))
 
 
-# TODO: get current property ID and make folder in agent 'PROPERTY' folder with property id
 @app.route("/addproperty", methods=["GET", "POST"])
 def add_property():
     if session.get('loggedin'):
@@ -178,7 +176,7 @@ def update_property(propertyID):
         return redirect(url_for('login'))
 
 
-# TODO: add a button to allow user to edit information and upload pictures. Display all pictures
+# TODO: add a button to allow user to upload pictures. Display all pictures
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
     if session.get('loggedin'):
