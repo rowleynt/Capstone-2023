@@ -152,6 +152,32 @@ def add_property():
         return redirect(url_for('login'))
 
 
+@app.route("/updateproperty/<propertyID>", methods=["GET", "POST"])
+def update_property(propertyID):
+    if session.get('loggedin'):
+        if request.method == "POST":
+            propSize = request.form.get('propertySize')
+            propType = request.form.get('propertyType')
+            numBeds = request.form.get('numBeds')
+            numBaths = request.form.get('numBaths')
+            address = request.form.get('address')
+            if propType:
+                db_insert(f'UPDATE Property SET type = "{propType}" WHERE propertyID = {propertyID}')
+            if propSize:
+                db_insert(f'UPDATE Property SET size = "{propSize}" WHERE propertyID = {propertyID}')
+            if numBeds:
+                db_insert(f'UPDATE Property SET numBeds = {numBeds} WHERE propertyID = {propertyID}')
+            if numBaths:
+                db_insert(f'UPDATE Property SET numBaths = {numBaths} WHERE propertyID = {propertyID}')
+            if address:
+                db_insert(f'UPDATE Property SET address = "{address}" WHERE propertyID = {propertyID}')
+            return redirect(url_for('admin_portal'))
+        else:
+            return render_template('updateproperty.html', prop_id=propertyID)
+    else:
+        return redirect(url_for('login'))
+
+
 # TODO: add a button to allow user to edit information and upload pictures. Display all pictures
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
@@ -166,7 +192,7 @@ def view_property(propertyID):
             "Number of Bathrooms": prop_data[5],
             "Address of Property": prop_data[6]
         }
-        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()))
+        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()), prop_id=int(propertyID))
     else:
         return redirect(url_for('login'))
 

@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Index </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body></br></br></br></br></br>
+        <div align="center">
+          <div align="center" class="border">
+            <form action="{{ url_for('update_property', propertyID = prop_id) }}" method="post">
+                  <div class="msg">{{ msg }}</div>
+                    <input id="propertyType" name="propertyType" type="text" placeholder="Property Type" class="textbox"/></br></br>
+                    <input id="propertySize" name="propertySize" type="text" placeholder="Property Size (Square Feet)" class="textbox"/></br></br>
+                    <input id="numBeds" name="numBeds" type="text" placeholder="Number of Bedrooms" class="textbox"/></br></br>
+                    <input id="numBaths" name="numBaths" type="text" placeholder="Number of Bathrooms" class="textbox"/></br></br>
+                    <input id="address" name="address" type="text" placeholder="Address of Property" class="textbox"/></br></br>
+                    <input type="submit" class="btn" value="Submit"></br>
+                </form>
+          </div>
+        </div>
+    </body>
+</html>
