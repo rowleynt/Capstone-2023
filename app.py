@@ -76,6 +76,11 @@ def register():
             db_insert(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{password}", "{phone}")')
             aID = db_select(f'SELECT agentID FROM Agent WHERE email = "{email}"')
             session['agentID'] = aID[0]
+
+            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0]))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0], "AGENT"))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0], "PROPERTY"))
+
             msg = 'Logged in successfully'
             return redirect(url_for('admin_portal'))
     elif request.method == 'POST':
@@ -104,6 +109,8 @@ def add_property():
             address = request.form.get('address')
             currAgent = int(session.get('agentID'))
             db_insert(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propType}", "{propSize}", {numBeds}, {numBaths}, "{address}")')
+            prop_id = db_select(f'SELECT propertyID FROM Property')[-1][0]
+            os.mkdir(os.path.join(UPLOAD_FOLDER, session['agentID'], "PROPERTY", prop_id))
             return redirect(url_for('admin_portal'))
         else:
             return render_template('addproperty.html')
