@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% for item in items %}
+        <div>{{ item[0] }}: {{ item[1] }}</div>
+    {% endfor %}
+    <a href="{{ url_for('admin_portal') }}" class="btn">Back To Portal</a>
+</head>
+<body>
+
+</body>
+</html>

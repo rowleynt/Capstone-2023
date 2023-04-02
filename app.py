@@ -97,7 +97,7 @@ def admin_portal():
     if session.get('loggedin'):
         conn = sqlite3.connect("boomtown.db")
         proplist = list(conn.execute(f"SELECT * FROM Property WHERE agentID = {session['agentID']}").fetchall())
-        return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], 'real.jpg'), list=proplist)
+        return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], "1", "AGENT", 'default.png'), list=proplist)
     else:
         return redirect(url_for('login'))
 
@@ -116,7 +116,7 @@ def add_property():
 
             db = sqlite3.connect("boomtown.db")
             conn = db.cursor()
-            conn.execute(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propSize}", "{propType}", {numBeds}, {numBaths}, "{address}")')
+            conn.execute(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propType}", "{propSize}", {numBeds}, {numBaths}, "{address}")')
             db.commit()
             conn.close()
 
@@ -131,7 +131,25 @@ def add_property():
 # TODO: display property information on page, add a button to allow user to edit information and upload pictures. Display all pictures
 @app.route("/viewproperty/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
-    return f"propertyID: {propertyID}"
+    prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
+    data_dict = {
+        "Property ID": int(propertyID),
+        "Agent ID": prop_data[1],
+        "Property Type": prop_data[2],
+        "Property Size": prop_data[3],
+        "Number of Bedrooms": prop_data[4],
+        "Number of Bathrooms": prop_data[5],
+        "Address of Property": prop_data[6]
+    }
+    return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()))
+
+
+def db_select(query) -> list:
+    bt = sqlite3.connect("boomtown.db")
+    cur = bt.cursor()
+    data = cur.execute(query).fetchall()
+    cur.close()
+    return data
 
 
 if __name__ == "__main__":

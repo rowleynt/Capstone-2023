@@ -13,11 +13,11 @@
             <h2 class="word">
                 <form action="{{ url_for('register') }}" method="post">
                   <div class="msg">{{ msg }}</div>
-                    <input id="agentFName" name="agentFName" type="text" placeholder="Enter Your First Name" class="textbox"/></br></br>
-                    <input id="agentLName" name="agentLName" type="text" placeholder="Enter Your First Name" class="textbox"/></br></br>
-                    <input id="email" name="email" type="text" placeholder="Enter Your Email" class="textbox"/></br></br>
-                    <input id="password" name="password" type="password" placeholder="Enter Your Password" class="textbox"/></br></br>
-                    <input id="phone" name="phone" type="text" placeholder="Enter Your Phone" class="textbox"/></br></br>
+                    <input id="agentFName" name="agentFName" type="text" placeholder="Enter Your First Name" class="textbox" required/></br></br>
+                    <input id="agentLName" name="agentLName" type="text" placeholder="Enter Your First Name" class="textbox" required/></br></br>
+                    <input id="email" name="email" type="text" placeholder="Enter Your Email" class="textbox" required/></br></br>
+                    <input id="password" name="password" type="password" placeholder="Enter Your Password" class="textbox" required/></br></br>
+                    <input id="phone" name="phone" type="text" placeholder="Enter Your Phone" class="textbox" required/></br></br>
                     <input type="submit" class="btn" value="Sign Up"></br>
                 </form>
             </h2>
