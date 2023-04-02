@@ -27,10 +27,7 @@ def login():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password = request.form['password']
-        db = sqlite3.connect("boomtown.db")
-        cursor = db.cursor()
-        cursor.execute(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password}"')
-        account = cursor.fetchone()
+        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password}"')[0]
         if account:
             session['loggedin'] = True
             session['email'] = email
@@ -39,7 +36,6 @@ def login():
             session['phone'] = account[5]
             session['agentID'] = account[0]
             msg = 'Logged in successfully'
-            # return render_template('index.html', msg=msg, user_image=os.path.join(app.config['UPLOAD_FOLDER'], 'real.jpg'))
             return redirect(url_for('admin_portal'))
         else:
             msg = 'Incorrect email / password'
@@ -64,10 +60,7 @@ def register():
         fname = request.form['agentFName']
         lname = request.form['agentLName']
         phone = request.form['phone']
-        db = sqlite3.connect("boomtown.db")
-        cursor = db.cursor()
-        cursor.execute(f'SELECT * FROM Agent WHERE email = "{email}"')
-        account = cursor.fetchone()
+        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}"')[0]
         if account:
             msg = 'Account already exists !'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
@@ -80,12 +73,10 @@ def register():
             session['fname'] = fname
             session['lname'] = lname
             session['phone'] = phone
-            cursor.execute(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{password}", "{phone}")')
-            db.commit()
-            aID = cursor.execute(f'SELECT agentID FROM Agent WHERE email = "{email}"').fetchone()
+            db_insert(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{password}", "{phone}")')
+            aID = db_select(f'SELECT agentID FROM Agent WHERE email = "{email}"')
             session['agentID'] = aID[0]
             msg = 'Logged in successfully'
-            # return render_template('index.html', msg=msg, user_image=os.path.join(app.config['UPLOAD_FOLDER'], 'real.jpg'))
             return redirect(url_for('admin_portal'))
     elif request.method == 'POST':
         msg = 'Please fill out the form'
@@ -95,9 +86,8 @@ def register():
 @app.route("/portal")
 def admin_portal():
     if session.get('loggedin'):
-        conn = sqlite3.connect("boomtown.db")
-        proplist = list(conn.execute(f"SELECT * FROM Property WHERE agentID = {session['agentID']}").fetchall())
-        return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], "1", "AGENT", 'default.png'), list=proplist)
+        prop_list = db_select(f"SELECT * FROM Property WHERE agentID = {session['agentID']}")
+        return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], "1", "AGENT", 'default.png'), list=prop_list)
     else:
         return redirect(url_for('login'))
 
@@ -113,14 +103,7 @@ def add_property():
             numBaths = int(request.form.get('numBaths'))
             address = request.form.get('address')
             currAgent = int(session.get('agentID'))
-
-            db = sqlite3.connect("boomtown.db")
-            conn = db.cursor()
-            conn.execute(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propType}", "{propSize}", {numBeds}, {numBaths}, "{address}")')
-            db.commit()
-            conn.close()
-
-            # print(propType, propSize, numBaths, numBeds, address, currAgent)
+            db_insert(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propType}", "{propSize}", {numBeds}, {numBaths}, "{address}")')
             return redirect(url_for('admin_portal'))
         else:
             return render_template('addproperty.html')
@@ -129,7 +112,7 @@ def add_property():
 
 
 # TODO: display property information on page, add a button to allow user to edit information and upload pictures. Display all pictures
-@app.route("/viewproperty/<propertyID>", methods=["GET", "POST"])
+@app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
     prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
     data_dict = {
@@ -150,6 +133,14 @@ def db_select(query) -> list:
     data = cur.execute(query).fetchall()
     cur.close()
     return data
+
+
+def db_insert(query):
+    bt = sqlite3.connect("boomtown.db")
+    cur = bt.cursor()
+    cur.execute(query)
+    bt.commit()
+    cur.close()
 
 
 if __name__ == "__main__":
