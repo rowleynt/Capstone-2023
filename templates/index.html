@@ -11,7 +11,10 @@
                 <h1 class="word">Profile</h1>
                     <img src={{ user_image }} alt="image" height="35%" width="25%"></br></br>
                     <input type="submit" class="btn" value="Update Profile" onClick="redirectUpdateProfile()"></br></br>
-                    <input type="submit" class="btn" value="Upload Image" onClick="redirectUploadPicture()"></br></br>
+                    <form method="post" enctype="multipart/form-data">
+                        <input type="file" name="profileimg">
+                        <input type="submit", value="Submit Profile Image">
+                    </form>
              </div></br></br></br>
                 <h1 class="bottom">
                     Agent ID: {{session.agentID}}</br>

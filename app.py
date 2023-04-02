@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.utils import secure_filename
 import sqlite3
 import re
 import os
@@ -88,11 +89,21 @@ def register():
     return render_template('register.html', msg=msg)
 
 
-@app.route("/portal")
+@app.route("/portal", methods=["GET", "POST"])
 def admin_portal():
     if session.get('loggedin'):
         prop_list = db_select(f"SELECT * FROM Property WHERE agentID = {session['agentID']}")
-        return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], "1", "AGENT", 'default.png'), list=prop_list)
+        if request.method == "POST":
+            if 'profileimg' not in request.files:
+                render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "AGENT", 'default.png'), list=prop_list)
+            file = request.files['profileimg']
+            print(file)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "AGENT", "default.png")
+            # path = os.path.join(app.config['UPLOAD_FOLDER'], "default.png")
+            file.save(path)
+            return render_template('index.html', user_image=path, list=prop_list)
+        else:
+            return render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "AGENT", 'default.png'), list=prop_list)
     else:
         return redirect(url_for('login'))
 
