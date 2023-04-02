@@ -6,6 +6,7 @@ import os
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
 
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
