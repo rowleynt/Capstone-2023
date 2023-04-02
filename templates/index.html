@@ -9,7 +9,9 @@
           <div align="center" class="border">
              <div class="header">
                 <h1 class="word">Profile</h1>
-                    <img src={{ user_image }} alt="image" height="35%" width="25%">
+                    <img src={{ user_image }} alt="image" height="35%" width="25%"></br></br>
+                    <input type="submit" class="btn" value="Update Profile" onClick="redirectUpdateProfile()"></br></br>
+                    <input type="submit" class="btn" value="Upload Image" onClick="redirectUploadPicture()"></br></br>
              </div></br></br></br>
                 <h1 class="bottom">
                     Agent ID: {{session.agentID}}</br>
@@ -27,5 +29,13 @@
                 <a href="{{ url_for('logout') }}" class="btn">Logout</a>
           </div>
         </div>
+        <script>
+            function redirectUpdateProfile() {
+                window.location.href = "{{ url_for('update_profile') }}"
+            }
+            function redirectUploadPicture() {
+                window.location.href = "{{ url_for('add_property') }}"
+            }
+        </script>
     </body>
 </html>

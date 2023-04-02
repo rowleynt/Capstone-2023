@@ -60,7 +60,7 @@ def register():
         fname = request.form['agentFName']
         lname = request.form['agentLName']
         phone = request.form['phone']
-        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}"')[0]
+        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}"')
         if account:
             msg = 'Account already exists !'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
@@ -75,11 +75,11 @@ def register():
             session['phone'] = phone
             db_insert(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{password}", "{phone}")')
             aID = db_select(f'SELECT agentID FROM Agent WHERE email = "{email}"')
-            session['agentID'] = aID[0]
+            session['agentID'] = aID[0][0]
 
-            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0]))
-            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0], "AGENT"))
-            os.mkdir(os.path.join(UPLOAD_FOLDER, aID[0], "PROPERTY"))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, str(aID[0][0])))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, str(aID[0][0]), "AGENT"))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, str(aID[0][0]), "PROPERTY"))
 
             msg = 'Logged in successfully'
             return redirect(url_for('admin_portal'))
@@ -97,6 +97,40 @@ def admin_portal():
         return redirect(url_for('login'))
 
 
+@app.route("/updateinfo", methods=["GET", "POST"])
+def update_profile():
+    if session.get('loggedin'):
+        if request.method == "POST":
+            fname = request.form.get('agentFName')
+            lname = request.form.get('agentLName')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            phone = request.form.get('phone')
+            if fname:
+                db_insert(f'UPDATE Agent SET agentFName = "{fname}" WHERE agentID = {session["agentID"]}')
+                session.pop('fname')
+                session['fname'] = fname
+            if lname:
+                db_insert(f'UPDATE Agent SET agentLName = "{lname}" WHERE agentID = {session["agentID"]}')
+                session.pop('lname')
+                session['lname'] = lname
+            if email:
+                db_insert(f'UPDATE Agent SET email = "{email}" WHERE agentID = {session["agentID"]}')
+                session.pop('email')
+                session['email'] = email
+            if password:
+                db_insert(f'UPDATE Agent SET agentFName = "{password}" WHERE agentID = {session["agentID"]}')
+            if phone:
+                db_insert(f'UPDATE Agent SET agentFName = "{phone}" WHERE agentID = {session["agentID"]}')
+                session.pop('phone')
+                session['phone'] = phone
+            return redirect(url_for('admin_portal'))
+        else:
+            return render_template('updateinfo.html')
+    else:
+        return redirect(url_for('login'))
+
+
 # TODO: get current property ID and make folder in agent 'PROPERTY' folder with property id
 @app.route("/addproperty", methods=["GET", "POST"])
 def add_property():
@@ -110,7 +144,7 @@ def add_property():
             currAgent = int(session.get('agentID'))
             db_insert(f'INSERT INTO Property (agentID, type, size, numBeds, numBaths, address) VALUES ({currAgent}, "{propType}", "{propSize}", {numBeds}, {numBaths}, "{address}")')
             prop_id = db_select(f'SELECT propertyID FROM Property')[-1][0]
-            os.mkdir(os.path.join(UPLOAD_FOLDER, session['agentID'], "PROPERTY", prop_id))
+            os.mkdir(os.path.join(UPLOAD_FOLDER, str(session['agentID']), "PROPERTY", str(prop_id)))
             return redirect(url_for('admin_portal'))
         else:
             return render_template('addproperty.html')
@@ -118,20 +152,23 @@ def add_property():
         return redirect(url_for('login'))
 
 
-# TODO: display property information on page, add a button to allow user to edit information and upload pictures. Display all pictures
+# TODO: add a button to allow user to edit information and upload pictures. Display all pictures
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
-    prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
-    data_dict = {
-        "Property ID": int(propertyID),
-        "Agent ID": prop_data[1],
-        "Property Type": prop_data[2],
-        "Property Size": prop_data[3],
-        "Number of Bedrooms": prop_data[4],
-        "Number of Bathrooms": prop_data[5],
-        "Address of Property": prop_data[6]
-    }
-    return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()))
+    if session.get('loggedin'):
+        prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
+        data_dict = {
+            "Property ID": int(propertyID),
+            "Agent ID": prop_data[1],
+            "Property Type": prop_data[2],
+            "Property Size": prop_data[3],
+            "Number of Bedrooms": prop_data[4],
+            "Number of Bathrooms": prop_data[5],
+            "Address of Property": prop_data[6]
+        }
+        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()))
+    else:
+        return redirect(url_for('login'))
 
 
 def db_select(query) -> list:
