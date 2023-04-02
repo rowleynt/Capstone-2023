@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
+import datetime
 import sqlite3
 import re
 import os
@@ -97,9 +98,7 @@ def admin_portal():
             if 'profileimg' not in request.files:
                 render_template('index.html', user_image=os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "AGENT", 'default.png'), list=prop_list)
             file = request.files['profileimg']
-            print(file)
             path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "AGENT", "default.png")
-            # path = os.path.join(app.config['UPLOAD_FOLDER'], "default.png")
             file.save(path)
             return render_template('index.html', user_image=path, list=prop_list)
         else:
@@ -188,10 +187,11 @@ def update_property(propertyID):
         return redirect(url_for('login'))
 
 
-# TODO: add a button to allow user to upload pictures. Display all pictures
+# TODO: fix picture display
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
     if session.get('loggedin'):
+        propertyID = propertyID[0]
         prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
         data_dict = {
             "Property ID": int(propertyID),
@@ -202,7 +202,15 @@ def view_property(propertyID):
             "Number of Bathrooms": prop_data[5],
             "Address of Property": prop_data[6]
         }
-        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()), prop_id=int(propertyID))
+        file_list = []
+        # TODO: I have no idea why this doesn't work
+        if request.method == "POST":
+            files = request.files.getlist("files")
+            for i, file in enumerate(files):
+                path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID, f"{propertyID}-{i}-{datetime.datetime.now().year + datetime.datetime.now().day + datetime.datetime.now().hour + datetime.datetime.now().second}.png")
+                file.save(path)
+                file_list.append(path)
+        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()), prop_id=int(propertyID), filelist=file_list)
     else:
         return redirect(url_for('login'))
 

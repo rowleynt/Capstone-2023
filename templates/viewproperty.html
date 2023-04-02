@@ -10,14 +10,17 @@
 <body>
     </br></br>
     <input type="submit" class="btn" value="Update Property Information" onClick="updatePropertyButton()"></br></br>
-    <input type="submit" class="btn" value="Upload Property Images" onClick=""></br></br>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="files" multiple />
+        <input type = "submit" value="Upload Property Images">
+    </form>
+    {% for filename in filelist %}
+        <img src="{{ filename }}" alt="image" height="35%" width="25%"></br></br>
+    {% endfor %}
 </body>
 <script>
       function updatePropertyButton() {
           window.location.href = "{{ url_for('update_property', propertyID = prop_id) }}"
-      }
-      function uploadPropertyImgButton() {
-          console.log("nothing")
       }
 </script>
 </html>
