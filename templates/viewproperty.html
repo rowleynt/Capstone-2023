@@ -14,8 +14,9 @@
         <input type="file" name="files" multiple />
         <input type = "submit" value="Upload Property Images">
     </form>
-    {% for filename in filelist %}
-        <img src="{{ filename }}" alt="image" height="35%" width="25%"></br></br>
+    </br>
+    {% for filen in filelist %}
+        <img src="{{ url_for('static', filename='media/' + agent + '/PROPERTY/' + prop + '/' + filen) }}" alt="image" height="35%" width="25%"></br></br>
     {% endfor %}
 </body>
 <script>

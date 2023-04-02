@@ -202,15 +202,15 @@ def view_property(propertyID):
             "Number of Bathrooms": prop_data[5],
             "Address of Property": prop_data[6]
         }
-        file_list = []
         # TODO: I have no idea why this doesn't work
         if request.method == "POST":
             files = request.files.getlist("files")
             for i, file in enumerate(files):
                 path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID, f"{propertyID}-{i}-{datetime.datetime.now().year + datetime.datetime.now().day + datetime.datetime.now().hour + datetime.datetime.now().second}.png")
                 file.save(path)
-                file_list.append(path)
-        return render_template('viewproperty.html', dict_size=len(data_dict), items=tuple(data_dict.items()), prop_id=int(propertyID), filelist=file_list)
+        img_list = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID))
+        # it works ¯\_(ツ)_/¯
+        return render_template('viewproperty.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
     else:
         return redirect(url_for('login'))
 
