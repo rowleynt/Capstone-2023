@@ -187,7 +187,6 @@ def update_property(propertyID):
         return redirect(url_for('login'))
 
 
-# TODO: fix picture display
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
     if session.get('loggedin'):
@@ -202,7 +201,7 @@ def view_property(propertyID):
             "Number of Bathrooms": prop_data[5],
             "Address of Property": prop_data[6]
         }
-        # TODO: I have no idea why this doesn't work
+        # TODO: sometimes images get saved multiple times, fix
         if request.method == "POST":
             files = request.files.getlist("files")
             for i, file in enumerate(files):
