@@ -5,9 +5,10 @@ import sqlite3
 import re
 import os
 
-# test
 
 app = Flask(__name__)
+if not os.path.exists(os.path.join('static', 'media')):
+    os.mkdir(os.path.join('static', 'media'))
 UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
