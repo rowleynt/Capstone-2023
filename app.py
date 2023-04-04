@@ -5,6 +5,8 @@ import sqlite3
 import re
 import os
 
+# test
+
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
