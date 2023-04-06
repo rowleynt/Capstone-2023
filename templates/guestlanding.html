@@ -14,24 +14,28 @@
                     <input id="guestFName" name="guestFName" type="text" placeholder="Enter your first name" class="textbox" /></br></br>
                     <input id="guestLName" name="guestLName" type="text" placeholder="Enter your class name" class="textbox" /></br></br>
 
-                    <input id="contactEmail" name="contactEmail" type="checkbox" onClick="doCheckUncheck()" />
-                    <input id="contactPhone" name="contactPhone" type="checkbox" onClick="doCheckUncheck()" /></br>
+                    <input id="contactEmail" name="contactEmail" type="checkbox" onClick="doCheckUncheck()" /> Contact me by email</br></br>
 
-                    <input id="guestEmail" name="guestEmail" type="text" placeholder="Enter your email" class="textbox_email" /></br></br>
-                    <input id="guestPhone" name="guestPhone" type="text" placeholder="Enter your phone number" class="textbox_phone" /></br></br>
+                    <input id="guestEmail" name="guestEmail" type="text" placeholder="Enter your email" class="textbox_email" style="display: none" /></br></br>
                     <input type="submit" class="btn" value="Submit"></br>
             </form>
           </div>
         </div>
     </body>
     <script>
-        // still need to hide forms when checkboxes aren't checked
         function doCheckUncheck() {
             let checkEmail = document.getElementById('contactEmail').checked
-            let checkPhone = document.getElementById('contactPhone').checked
 
             let formEmail = document.getElementById('guestEmail')
-            let formPhone = document.getElementById('guestPhone')
+
+            //formEmail.style.display = "none"
+
+            if (checkEmail == true) {
+                console.log("checkEmail:", checkEmail)
+                formEmail.style.display = "block"
+            } else {
+                formEmail.style.display = "none"
+            }
         }
     </script>
 </html>
