@@ -22,6 +22,8 @@ conn.execute("CREATE TABLE IF NOT EXISTS Guest (guestID INTEGER PRIMARY KEY AUTO
 db.commit()
 conn.close()
 
+# TODO: use prepared statements for db queries, hash passwords
+
 
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
