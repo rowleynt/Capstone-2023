@@ -210,7 +210,10 @@ def view_property(propertyID):
             files = request.files.getlist("files")
             for i, file in enumerate(files):
                 path = os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID, f"{propertyID}-{i}-{datetime.datetime.now().year + datetime.datetime.now().day + datetime.datetime.now().hour + datetime.datetime.now().second}.png")
-                file.save(path)
+                if allowed_file(file.filename):
+                    file.save(path)
+                else:
+                    print("Error: file type not accepted")
         img_list = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID))
         # it works ¯\_(ツ)_/¯
         return render_template('viewproperty.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
@@ -232,6 +235,11 @@ def db_insert(query):
     cur.execute(query)
     bt.commit()
     cur.close()
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 if __name__ == "__main__":
