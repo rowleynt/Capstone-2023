@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session # -> pip install flask
 from werkzeug.utils import secure_filename
 import datetime
 import sqlite3
 import re
 import os
+import bcrypt # need to manually install -> pip install bcrypt
 
 
 app = Flask(__name__)
@@ -13,6 +14,8 @@ if not os.path.exists(os.path.join('static', 'media')):
 UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
+
+SALT = bcrypt.gensalt()
 
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
@@ -33,8 +36,11 @@ def login():
     msg = ''
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
-        password = request.form['password']
-        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password}"')[0]
+        password_plaintext = request.form['password']
+        password_hash = gen_safe_password(password_plaintext, SALT)
+
+        # TODO: fix this line (causes crash if account not in db)
+        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password_hash}"')[0]
         if account:
             session['loggedin'] = True
             session['email'] = email
@@ -62,7 +68,10 @@ def register():
     msg = ''
     if request.method == 'POST' and 'agentFName' in request.form and 'agentLName' in request.form and 'email' in request.form and 'password' in request.form and 'email' in request.form and 'phone' in request.form:
         email = request.form['email']
-        password = request.form['password']
+
+        unsafe_password = request.form['password']
+        safe_password = gen_safe_password(unsafe_password, SALT)
+
         fname = request.form['agentFName']
         lname = request.form['agentLName']
         phone = request.form['phone']
@@ -71,7 +80,7 @@ def register():
             msg = 'Account already exists !'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address'
-        elif not fname or not lname or not phone or not password or not email:
+        elif not fname or not lname or not phone or not unsafe_password or not email:
             msg = 'Please fill out the form'
         else:
             session['loggedin'] = True
@@ -79,7 +88,7 @@ def register():
             session['fname'] = fname
             session['lname'] = lname
             session['phone'] = phone
-            db_insert(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{password}", "{phone}")')
+            db_insert(f'INSERT INTO Agent (agentFName, agentLName, email, password, phone) VALUES ("{fname}", "{lname}", "{email}", "{safe_password}", "{phone}")')
             aID = db_select(f'SELECT agentID FROM Agent WHERE email = "{email}"')
             session['agentID'] = aID[0][0]
 
@@ -206,6 +215,7 @@ def view_property(propertyID):
             "Address of Property": prop_data[6]
         }
         # TODO: sometimes images get saved multiple times, fix
+        # update: the images get saved again if the user refreshes this page
         if request.method == "POST":
             files = request.files.getlist("files")
             for i, file in enumerate(files):
@@ -240,6 +250,11 @@ def db_insert(query):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def gen_safe_password(plaintext, salt):
+    bytes = plaintext.encode("utf-8")
+    return bcrypt.hashpw(bytes, salt)
 
 
 if __name__ == "__main__":
