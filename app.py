@@ -15,7 +15,7 @@ UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
 
-SALT = bcrypt.gensalt()
+SALT = b'$2b$12$xupBDilwoxEyd/vXNsmNSO' # storing salt here is probably very bad; fix
 
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
@@ -37,17 +37,17 @@ def login():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password_plaintext = request.form['password']
-        password_hash = gen_safe_password(password_plaintext, SALT)
+        password_hash = gen_safe_password(password_plaintext)
 
         # TODO: fix this line (causes crash if account not in db)
-        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password_hash}"')[0]
+        account = db_select(f'SELECT * FROM Agent WHERE email = "{email}" AND password = "{password_hash}"')
         if account:
             session['loggedin'] = True
             session['email'] = email
-            session['fname'] = account[1]
-            session['lname'] = account[2]
-            session['phone'] = account[5]
-            session['agentID'] = account[0]
+            session['fname'] = account[0][1]
+            session['lname'] = account[0][2]
+            session['phone'] = account[0][5]
+            session['agentID'] = account[0][0]
             msg = 'Logged in successfully'
             return redirect(url_for('admin_portal'))
         else:
@@ -70,7 +70,7 @@ def register():
         email = request.form['email']
 
         unsafe_password = request.form['password']
-        safe_password = gen_safe_password(unsafe_password, SALT)
+        safe_password = gen_safe_password(unsafe_password)
 
         fname = request.form['agentFName']
         lname = request.form['agentLName']
@@ -252,9 +252,9 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def gen_safe_password(plaintext, salt):
+def gen_safe_password(plaintext):
     bytes = plaintext.encode("utf-8")
-    return bcrypt.hashpw(bytes, salt)
+    return bcrypt.hashpw(bytes, SALT)
 
 
 if __name__ == "__main__":
