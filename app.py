@@ -15,7 +15,7 @@ UPLOAD_FOLDER = os.path.join('static', 'media')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
 
-SALT = b'$2b$12$xupBDilwoxEyd/vXNsmNSO' # storing salt here is probably very bad; fix
+SALT = b'$2b$12$xupBDilwoxEyd/vXNsmNSO' # storing salt here is probably very bad; fix?
 
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
@@ -231,6 +231,31 @@ def view_property(propertyID):
         return render_template('viewproperty.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
     else:
         return redirect(url_for('login'))
+
+
+@app.route("/showcase/<propertyID>", methods=["GET", "POST"])
+def showcase_property(propertyID):
+    if session.get('loggedin'):
+        propertyID = propertyID[0]
+        prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
+        data_dict = {
+            "Property ID": int(propertyID),
+            "Agent ID": prop_data[1],
+            "Property Type": prop_data[2],
+            "Property Size": prop_data[3],
+            "Number of Bedrooms": prop_data[4],
+            "Number of Bathrooms": prop_data[5],
+            "Address of Property": prop_data[6]
+        }
+        img_list = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID))
+        return render_template('showcase.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route("/signin/<propertyID>", methods=["GET", "POST"])
+def guest_signin(propertyID):
+    return render_template('guestsignin.html')
 
 
 def db_select(query) -> list:

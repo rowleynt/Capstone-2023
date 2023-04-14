@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% for item in items %}
+        <div>{{ item[0] }}: {{ item[1] }}</div>
+    {% endfor %}
+</head>
+<body>
+    </br></br>
+    <input type="submit" class="btn" value="Sign In" onClick="signinButton()"></br></br>
+    </br>
+    {% for filen in filelist %}
+        <img src="{{ url_for('static', filename='media/' + agent + '/PROPERTY/' + prop + '/' + filen) }}" alt="image" height="35%" width="25%"></br></br>
+    {% endfor %}
+</body>
+<script>
+  function signinButton() {
+    console.log("temp")
+  }
+</script>
+</html>
