@@ -4,7 +4,7 @@ import datetime
 import sqlite3
 import re
 import os
-import bcrypt # need to manually install -> pip install bcrypt
+import bcrypt  # need to manually install -> pip install bcrypt
 
 
 app = Flask(__name__)
