@@ -205,17 +205,7 @@ def update_property(propertyID):
 @app.route("/property/<propertyID>", methods=["GET", "POST"])
 def view_property(propertyID):
     if session.get('loggedin'):
-        propertyID = propertyID[0]
-        prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
-        data_dict = {
-            "Property ID": int(propertyID),
-            "Agent ID": prop_data[1],
-            "Property Type": prop_data[2],
-            "Property Size": prop_data[3],
-            "Number of Bedrooms": prop_data[4],
-            "Number of Bathrooms": prop_data[5],
-            "Address of Property": prop_data[6]
-        }
+        data_dict = get_property_info(propertyID)
         # TODO: sometimes images get saved multiple times, fix
         # update: the images get saved again if the user refreshes this page
         if request.method == "POST":
@@ -236,17 +226,7 @@ def view_property(propertyID):
 @app.route("/showcase/<propertyID>", methods=["GET", "POST"])
 def showcase_property(propertyID):
     if session.get('loggedin'):
-        propertyID = propertyID[0]
-        prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
-        data_dict = {
-            "Property ID": int(propertyID),
-            "Agent ID": prop_data[1],
-            "Property Type": prop_data[2],
-            "Property Size": prop_data[3],
-            "Number of Bedrooms": prop_data[4],
-            "Number of Bathrooms": prop_data[5],
-            "Address of Property": prop_data[6]
-        }
+        data_dict = get_property_info(propertyID)
         img_list = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID))
         return render_template('showcase.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
     else:
@@ -255,7 +235,25 @@ def showcase_property(propertyID):
 
 @app.route("/signin/<propertyID>", methods=["GET", "POST"])
 def guest_signin(propertyID):
-    return render_template('guestsignin.html')
+    if not session.get('loggedin'):
+        return render_template('login.html')
+
+    if request.method == "POST":
+        data_dict = get_property_info(propertyID)
+        img_list = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'], str(session['agentID']), "PROPERTY", propertyID))
+        guest_fname = request.form.get('guestFName')
+        guest_lname = request.form.get('guestLName')
+        prop_id_guest = int(propertyID)
+        curr_date = datetime.datetime.today()
+        guest_email = request.form.get('guestEmail')
+        if guest_email:
+            db_insert(f'INSERT INTO Guest (propertyID, guestFName, guestLName, guestEmail, dateOfVisit) VALUES ({prop_id_guest}, "{guest_fname}", "{guest_lname}", "{guest_email}", "{curr_date}")')
+        else:
+            db_insert( f'INSERT INTO Guest (propertyID, guestFName, guestLName, dateOfVisit) VALUES ({prop_id_guest}, "{guest_fname}", "{guest_lname}", "{curr_date}")')
+        # print(db_select(f'SELECT * FROM Guest'))
+        return render_template('showcase.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
+    else:
+        return render_template('guestsignin.html', prop_id=propertyID)
 
 
 def db_select(query) -> list:
@@ -282,6 +280,21 @@ def allowed_file(filename):
 def gen_safe_password(plaintext):
     bytes = plaintext.encode("utf-8")
     return bcrypt.hashpw(bytes, SALT)
+
+
+def get_property_info(prop_id) -> dict:
+    propertyID = prop_id[0]
+    prop_data = db_select(f'SELECT * FROM Property WHERE propertyID = {propertyID}')[0]
+    data_dict = {
+        "Property ID": int(propertyID),
+        "Agent ID": prop_data[1],
+        "Property Type": prop_data[2],
+        "Property Size": prop_data[3],
+        "Number of Bedrooms": prop_data[4],
+        "Number of Bathrooms": prop_data[5],
+        "Address of Property": prop_data[6]
+    }
+    return data_dict
 
 
 if __name__ == "__main__":
