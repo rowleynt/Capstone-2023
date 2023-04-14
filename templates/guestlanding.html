@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Index </title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body></br></br></br></br></br>
+        <div align="center">
+          <div align="center" class="border">
+            <form>
+                <div class="msg">Sign In</div></br>
+                    <input id="guestFName" name="guestFName" type="text" placeholder="Enter your first name" class="textbox" /></br></br>
+                    <input id="guestLName" name="guestLName" type="text" placeholder="Enter your class name" class="textbox" /></br></br>
+
+                    <input id="contactEmail" name="contactEmail" type="checkbox" onClick="doCheckUncheck()" /> Contact me by email</br></br>
+
+                    <input id="guestEmail" name="guestEmail" type="text" placeholder="Enter your email" class="textbox_email" style="display: none" /></br></br>
+                    <input type="submit" class="btn" value="Submit"></br>
+            </form>
+          </div>
+        </div>
+    </body>
+    <script>
+        function doCheckUncheck() {
+            let checkEmail = document.getElementById('contactEmail').checked
+
+            let formEmail = document.getElementById('guestEmail')
+
+            //formEmail.style.display = "none"
+
+            if (checkEmail == true) {
+                console.log("checkEmail:", checkEmail)
+                formEmail.style.display = "block"
+            } else {
+                formEmail.style.display = "none"
+            }
+        }
+    </script>
+</html>
