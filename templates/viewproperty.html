@@ -9,6 +9,7 @@
 </head>
 <body>
     </br></br>
+    <input type="submit" class="btn" value="Showcase This Property" onClick="showcasePropertyButton()"></br></br>
     <input type="submit" class="btn" value="Update Property Information" onClick="updatePropertyButton()"></br></br>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="files" multiple />
@@ -22,6 +23,9 @@
 <script>
       function updatePropertyButton() {
           window.location.href = "{{ url_for('update_property', propertyID = prop_id) }}"
+      }
+      function showcasePropertyButton() {
+          window.location.href = "{{ url_for('showcase_property', propertyID = prop_id) }}"
       }
 </script>
 </html>
