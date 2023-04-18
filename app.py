@@ -20,7 +20,6 @@ SALT = b'$2b$12$xupBDilwoxEyd/vXNsmNSO' # storing salt here is probably very bad
 app.secret_key = 'qm$Fx%tvPpGi?k+/32iiRL-v??o)wJLtE@1/Z$u-%)#4ia~sc'
 
 # initial database stuff
-# TODO: add to separate function to reduce code duplication
 db = sqlite3.connect("boomtown.db")
 conn = db.cursor()
 conn.execute("CREATE TABLE IF NOT EXISTS Agent (agentID INTEGER PRIMARY KEY AUTOINCREMENT, agentFName TEXT, agentLName TEXT, email TEXT, password TEXT, phone TEXT)")
@@ -28,10 +27,6 @@ conn.execute("CREATE TABLE IF NOT EXISTS Property (propertyID INTEGER PRIMARY KE
 conn.execute("CREATE TABLE IF NOT EXISTS Guest (guestID INTEGER PRIMARY KEY AUTOINCREMENT, propertyID INTEGER, guestFName TEXT, guestLName TEXT, guestEmail TEXT, phone TEXT, dateOfVisit TEXT, FOREIGN KEY (propertyID) REFERENCES Property (propertyID))")
 db.commit()
 conn.close()
-
-# TODO: use prepared statements for db queries, hash passwords
-
-
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -254,6 +249,16 @@ def guest_signin(propertyID):
         return render_template('showcase.html', items=tuple(data_dict.items()), prop_id=int(propertyID), prop=propertyID, filelist=img_list, agent=str(session['agentID']))
     else:
         return render_template('guestsignin.html', prop_id=propertyID)
+
+
+@app.route("/viewguests")
+def view_guests():
+    properties = db_select(f"SELECT propertyID, address FROM Property WHERE agentID = {session['agentID']}")
+    guests = {}
+    for prop in properties:
+        guest_info = db_select(f"SELECT * FROM Guest WHERE propertyID = {prop[0]}")
+        guests[prop[1]] = [guest_info]
+    return guests
 
 
 def db_select(query) -> list:
